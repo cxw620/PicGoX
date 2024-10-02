@@ -1,0 +1,43 @@
+import { Button, VerticalBox, GridBox, Slider } from "std-widgets.slint";
+
+import { SideBar } from "widgets/sidebar.slint";
+
+import { Variables } from "./variables.slint";
+import { UploadPage, AlbumPage, StoragePage, ConfigurationPage, AboutPage } from "pages/pages.slint";
+
+export { UploadPageAdapter } from "./pages/pages.slint";
+export { PopUp } from "./popup.slint";
+
+export component Main inherits Window {
+    // window properties
+    title: Variables.current-title;
+    icon: @image-url("./img/logo.png");
+    preferred-width: 800px;
+    resize-border-width: 0cm;
+    no-frame: false;
+    preferred-height: 500px;
+    
+
+    // callbacks definition
+
+    // layout definition
+    HorizontalLayout {
+        side-bar := SideBar {
+            title: "PicGoX";
+            drop-shadow-offset-y: 0mm;
+            model: [
+                @tr("菜单" => "上传"),
+                @tr("菜单" => "相册"),
+                @tr("菜单" => "图床配置"),
+                @tr("菜单" => "设置"),
+                @tr("菜单" => "关于"),
+            ];
+        }
+
+        if(side-bar.current-item == 0): UploadPage { }
+        if(side-bar.current-item == 1): AlbumPage { }
+        if(side-bar.current-item == 2): StoragePage { }
+        if(side-bar.current-item == 3): ConfigurationPage { }
+        if(side-bar.current-item == 4): AboutPage { }
+    }
+}

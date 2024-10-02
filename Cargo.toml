@@ -1,0 +1,114 @@
+# cargo-features = ["codegen-backend"]
+
+[workspace]
+resolver = "2"
+members = ["libs/lib-upload"]
+
+[workspace.package]
+version = "0.0.0-alpha.1"
+authors = ["Hantong Chen"]
+edition = "2021"
+rust-version = "1.80"
+license = "GPL-3.0-only"
+
+[workspace.dependencies]
+# Basic deps
+
+[workspace.lints.rust]
+unsafe_code = "warn"
+missing_debug_implementations = "warn"
+unreachable_pub = "warn"
+
+[workspace.lints.clippy]
+await_holding_lock = "warn"
+dbg_macro = "warn"
+doc_markdown = "warn"
+empty_enum = "warn"
+enum_glob_use = "warn"
+inefficient_to_string = "warn"
+mem_forget = "warn"
+mutex_integer = "warn"
+needless_continue = "warn"
+todo = "warn"
+unimplemented = "warn"
+wildcard_imports = "warn"
+
+[profile.dev]
+# codegen-backend = "cranelift" # Notice:: rustls will fail to compile with cranelift
+
+[profile.test]
+# codegen-backend = "llvm"
+
+[profile.release]
+opt-level = 3
+debug = false
+lto = true
+codegen-units = 1
+split-debuginfo = "unpacked"
+strip = true
+panic = "abort"
+
+[package]
+name = "picgo-rs"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+# Non-WASM Targets
+[dependencies]
+# Basic
+ahash = "0.8"
+anyhow = "=1.0.76"
+dashmap = { version = "6.1", features = ["inline"] }
+tokio = { version = "1.40", features = [
+    "rt",
+    "rt-multi-thread",
+    "time",
+    "sync",
+    "parking_lot",
+] }
+
+# GUI
+slint = { version = "1.8", default-features = false, features = [
+    "compat-1-2",
+    "backend-default",
+    "backend-winit",
+    "renderer-skia",
+    "renderer-femtovg",
+    "renderer-software",
+    "std",
+    "log",
+] }
+
+# Custom allocator
+mimalloc = { version = "0.1", optional = true }
+
+# Log
+tracing = "0.1"
+tracing-appender = { version = "0.2", features = ["parking_lot"] }
+tracing-subscriber = { version = "0.3", features = [
+    "chrono",
+    "env-filter",
+    "parking_lot",
+] }
+
+[build-dependencies]
+slint-build = "1.8"
+
+[target."cfg(windows)".dependencies]
+win-msgbox = "0.2"
+tray-item = { version = "0.10" }
+
+[target."cfg(unix)".dependencies]
+tray-item = { version = "0.10", features = ["ksni"] }
+
+[target."cfg(windows)".build-dependencies]
+embed-resource = "2.5"
+
+[features]
+default = ["alloc-mimalloc"]
+
+# Custom allocator
+alloc-mimalloc = ["dep:mimalloc"]

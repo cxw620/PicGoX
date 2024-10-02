@@ -1,0 +1,94 @@
+// Copyright © SixtyFPS GmbH <info@slint.dev>
+// SPDX-License-Identifier: MIT
+
+import { AboutSlint, VerticalBox, Button, ProgressIndicator, HorizontalBox } from "std-widgets.slint";
+
+import { Page } from "../widgets/page.slint";
+
+import { Variables } from "../variables.slint";
+
+export global UploadPageAdapter {
+    // ==========     Variables    ==========
+    out property <bool> uploading: false;
+    out property <float> uploading-progress: 0;
+    out property <bool> upload-button-enable: true;
+    out property <string> upload-button-text: @tr("点击上传");
+
+    // ==========     Callbacks    ==========
+
+    // Upload
+    callback do-upload();
+    // Cancel upload
+    callback cancel-upload();
+
+    // ========== Public Functions ==========
+    
+    // Set state `uploading`
+    public function set_state_uploading(progress: float) {
+        uploading-progress = progress;
+        if !uploading {
+            uploading = true;
+            upload-button-text = @tr("取消上传");
+        }
+    }
+
+    // Set state `cancelling`
+    public function set_state_cancelling() {
+        upload-button-enable = false;
+    }
+
+    // Set state `idle`
+    public function set_state_idle() {
+        uploading = false;
+        uploading-progress = 0;
+        upload-button-enable = true;
+        upload-button-text = @tr("点击上传");
+    }
+}
+
+export component UploadPage inherits Page {
+    // Title
+    title: @tr("上传");
+    description: @tr("");
+
+    // Title
+    Text {
+        text: @tr("图片上传 - ") + Variables.current-storage;
+        font-size: 24px;
+        horizontal-alignment: center;
+    }
+
+    // Spacer
+    Rectangle { }
+
+    VerticalBox {
+        // Progress Bar
+        if UploadPageAdapter.uploading: HorizontalBox {
+            ProgressIndicator {
+                progress: UploadPageAdapter.uploading-progress;
+                horizontal-stretch: 1;
+            }
+
+            Text {
+                text: floor(UploadPageAdapter.uploading-progress * 100) + "%";
+                horizontal-alignment: right;
+                width: 30px;
+            }
+        }
+
+        // Upload Button
+        Button {
+            text: UploadPageAdapter.upload-button-text;
+            primary: true;
+            enabled: UploadPageAdapter.upload-button-enable;
+            checkable: UploadPageAdapter.upload-button-enable;
+            clicked => {
+                if (UploadPageAdapter.uploading) {
+                    UploadPageAdapter.cancel-upload();
+                } else {
+                    UploadPageAdapter.do-upload();
+                }
+            }
+        }
+    }
+}

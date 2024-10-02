@@ -1,0 +1,47 @@
+import { HorizontalBox, VerticalBox,  Button, GridBox } from "std-widgets.slint";
+export component PopUp inherits Window {
+    // window properties
+    title: "提示";
+    width: 160px;
+    height: 120px;
+    always-on-top: true;
+    no-frame: true;
+
+    // variables
+    in-out property var-title <=> self.title;
+    in-out property <string> var-message: "null?";
+
+    // callbacks
+    // confirm, 0 => no, -1 => cancel, 1 => yes
+    callback confirm(int);
+
+    // layout
+    VerticalLayout {
+        HorizontalBox {
+            Text {
+                text: @tr("提示") + ": " + var-message;
+                font-size: 16px;
+            }
+        }
+
+        Rectangle { }
+
+        HorizontalBox {
+            alignment: center;
+            Button {
+                text: "取消";
+                width: 40%;
+                clicked => {
+                    confirm(0);
+                }
+            }
+            Button {
+                text: "确定";
+                width: 40%;
+                clicked => {
+                    confirm(1);
+                }
+            }
+        }
+    }
+}
